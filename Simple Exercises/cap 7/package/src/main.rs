@@ -1,6 +1,7 @@
-mod module1;
+mod restaurant;
 
+use crate::restaurant::order_food;
 
 fn main(){
-    module1::function1();
+    order_food();
 }
