@@ -7,12 +7,23 @@ use crossterm::{
 };
 use std::io::{stdout, Write};
 
+
+fn select(temp: &[&str]) -> usize{
+    let index = &temp.iter().position(|&elem| elem.contains("|----"));
+    //convertir el index a u8
+    let index = index.unwrap_or(0) + 1;
+    let mut selected_index = index;
+
+    selected_index
+}
+
+
 fn main() -> Result<()> {
     // Mensajes disponibles
 
     let mut temp = vec![];
 
-    let mut messages = vec![
+    let messages = vec![
         "┌───────────────────────────┐",
         "│ Selector de interfaces    │",
         "|---------------------------|",
@@ -22,40 +33,60 @@ fn main() -> Result<()> {
         "│ Interfaz 4                │",
         "└───────────────────────────┘",
     ];
-    let mut interfaz1 = vec![
+    let interfaz1 = vec![
         "┌───────────────────────────┐",
         "│ primera interfaz          │",
+        "|---------------------------|",
+        "| Opcion                    |",
         "└───────────────────────────┘",
     ];
 
-    let mut interfaz2 = vec![
+    let interfaz2 = vec![
         "┌───────────────────────────┐",
         "│ segunda interfaz          │",
+        "|---------------------------|",
+        "| Opcion                    |",
         "└───────────────────────────┘",
     ];
 
-    let mut interfaz3 = vec![
+    let interfaz3 = vec![
         "┌───────────────────────────┐",
         "│ tercera interfaz          │",
+        "|---------------------------|",
+        "| Opcion                    |",
         "└───────────────────────────┘",
     ];
 
-    let mut interfaz4 = vec![
+    let interfaz4 = vec![
         "┌───────────────────────────┐",
         "│ cuarta interfaz           │",
+        "|---------------------------|",
+        "| Opcion                    |",
         "└───────────────────────────┘",
     ];
 
-    // Inicializar la posición del mensaje en "focus"
-    let mut selected_index = 3;
+    
     'inicio:loop {
+    
+    
+    static mut FIRST_TIME: bool = true;
+
+    unsafe {
+        if FIRST_TIME {
+            temp = messages.clone();
+            FIRST_TIME = false;
+        }
+    }
+    
+    // Inicializar la posición del mensaje en "focus"
+    let mut selected_index = select(&temp);
+    let mut index = selected_index;
     // Habilitar el modo raw de la terminal
     enable_raw_mode()?;
 
     // Mostrar los mensajes iniciales
-    show_messages(&messages, selected_index)?;
-
-    temp = messages.clone();
+    show_messages(&temp, selected_index)?;
+    
 
     loop{
         // Leer eventos de teclado
@@ -69,7 +100,7 @@ fn main() -> Result<()> {
                 }
                 KeyCode::Up => {
                     // Mover la flecha hacia arriba
-                    if selected_index > 3 {
+                    if selected_index > index {
                         selected_index -= 1;
                     }
                 }
@@ -82,10 +113,22 @@ fn main() -> Result<()> {
                 KeyCode::Enter => {
                     // Mostrar la interfaz seleccionada
                     match selected_index {
-                        3 => temp = interfaz1.clone(),
-                        4 => temp = interfaz2.clone(),
-                        5 => temp = interfaz3.clone(),
-                        6 => temp = interfaz4.clone(),
+                        3 => {
+                            temp = interfaz1.clone();
+                            selected_index = select(&temp);
+                            },
+                        4 => {
+                            temp = interfaz2.clone();
+                            selected_index = select(&temp);
+                            },
+                        5 => {
+                            temp = interfaz3.clone();
+                            selected_index = select(&temp);
+                            },
+                        6 => {
+                            temp = interfaz4.clone();
+                            selected_index = select(&temp);
+                            },
                         _ => {}
                     }
                 }
